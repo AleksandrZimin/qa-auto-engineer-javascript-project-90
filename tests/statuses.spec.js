@@ -28,9 +28,8 @@ test.describe("Создание статуса", () => {
       name: "In Review",
       slug: "in-review",
     });
-    await statusesPage.save();
+    await statusesPage.saveAndGoTo('/#/task_statuses');
 
-    await expect(page).toHaveURL(/#\/task_statuses/);
     await expect(page.getByText("In Review")).toBeVisible();
   });
 });

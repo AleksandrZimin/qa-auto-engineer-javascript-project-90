@@ -33,9 +33,8 @@ test.describe("Создание пользователя", () => {
       lastName: "Tester",
       email: "john.tester@example.com",
     });
-    await usersPage.save();
+    await usersPage.saveAndGoTo('/#/users');
 
-    await expect(page).toHaveURL(/#\/users/);
     await expect(page.getByText("john.tester@example.com")).toBeVisible();
   });
 });

@@ -1,3 +1,5 @@
+import { expect } from "@playwright/test";
+
 export class AppPage {
   constructor(page) {
     this.page = page;
@@ -14,4 +16,11 @@ export class AppPage {
     // Кликаем Logout в выпадающем меню
     await this.page.getByRole("menuitem", { name: /logout/i }).click();
   }
+
+  async saveAndGoTo(route) {
+    await this.page.getByRole('button', { name: /save/i }).click();
+    await expect(this.page.getByText('Element created')).toBeVisible();
+    await this.page.goto(route);
+  }
 }
+

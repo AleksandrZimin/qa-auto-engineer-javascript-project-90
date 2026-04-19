@@ -1,11 +1,11 @@
-import { AppPage } from './AppPage.js';
+import { AppPage } from "./AppPage.js";
 
 export class LoginPage extends AppPage {
   constructor(page) {
     super(page);
     this.usernameInput = page.getByLabel(/username/i);
     this.passwordInput = page.getByLabel(/password/i);
-    this.signInButton = page.getByRole('button', { name: /sign in/i });
+    this.signInButton = page.getByRole("button", { name: /sign in/i });
   }
 
   async login(username, password) {
@@ -14,3 +14,4 @@ export class LoginPage extends AppPage {
     await this.signInButton.click();
   }
 }
+

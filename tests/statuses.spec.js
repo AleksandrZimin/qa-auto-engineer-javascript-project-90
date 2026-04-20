@@ -39,7 +39,7 @@ test.describe("Список статусов", () => {
     const statusesPage = new StatusesPage(page);
     await statusesPage.goto("/#/task_statuses");
 
-    await expect(statusesPage.statusesList).toBeVisible();
+    await expect(statusesPage.itemsList).toBeVisible();
   });
 
   test("отображается основная информация о статусах", async ({ page }) => {
@@ -85,14 +85,12 @@ test.describe("Удаление статусов", () => {
     const statusesPage = new StatusesPage(page);
     await statusesPage.goto("/#/task_statuses");
 
-    // Берём ячейку с названием статуса (колонка Name — обычно 2-я или 3-я)
     const firstRow = page.getByRole("row").nth(1);
-    const nameCell = firstRow.getByRole("cell").nth(2); // ← попробуй nth(2) вместо nth(1)
+    const nameCell = firstRow.getByRole("cell").nth(2);
     const nameText = await nameCell.textContent();
 
-    await statusesPage.deleteStatus(0);
+    await statusesPage.deleteItem(0);
 
-    // Ищем точное совпадение в таблице, не по всей странице
     await expect(
       page.getByRole("cell", { name: nameText, exact: true }),
     ).not.toBeVisible();
@@ -102,6 +100,6 @@ test.describe("Удаление статусов", () => {
     const statusesPage = new StatusesPage(page);
     await statusesPage.goto("/#/task_statuses");
 
-    await statusesPage.deleteAllStatuses();
+    await statusesPage.deleteAllItems('No Task statuses yet.');
   });
 });

@@ -37,7 +37,7 @@ test.describe("Список меток", () => {
     const labelsPage = new LabelsPage(page);
     await labelsPage.goto("/#/labels");
 
-    await expect(labelsPage.labelsList).toBeVisible();
+    await expect(labelsPage.itemsList).toBeVisible();
   });
 
   test("отображается основная информация о метках", async ({ page }) => {
@@ -82,11 +82,10 @@ test.describe("Удаление меток", () => {
     const labelsPage = new LabelsPage(page);
     await labelsPage.goto("/#/labels");
 
-    // Запоминаем название первой метки
     const firstRow = page.getByRole("row").nth(1);
     const nameText = await firstRow.getByRole("cell").nth(2).textContent();
 
-    await labelsPage.deleteLabel(0);
+    await labelsPage.deleteItem(0);
 
     await expect(
       page.getByRole("cell", { name: nameText, exact: true }),
@@ -97,7 +96,7 @@ test.describe("Удаление меток", () => {
     const labelsPage = new LabelsPage(page);
     await labelsPage.goto("/#/labels");
 
-    await labelsPage.deleteAllLabels();
+    await labelsPage.deleteAllItems('No Labels yet.');
   });
 });
 

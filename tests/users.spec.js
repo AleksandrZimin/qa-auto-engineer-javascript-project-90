@@ -50,7 +50,6 @@ test.describe("Список пользователей", () => {
     const usersPage = new UsersPage(page);
     await usersPage.goto("/#/users");
 
-    // Колонки с именем, фамилией и email присутствуют
     await expect(
       page.getByRole("columnheader", { name: /email/i }),
     ).toBeVisible();
@@ -68,7 +67,6 @@ test.describe("Редактирование пользователя", () => {
     const usersPage = new UsersPage(page);
     await usersPage.goto("/#/users");
 
-    // Кликаем на первого пользователя в списке
     await page.getByRole("row").nth(1).click();
 
     await expect(usersPage.emailInput).toBeVisible();
@@ -99,7 +97,6 @@ test.describe("Редактирование пользователя", () => {
     await usersPage.emailInput.fill("not-valid-email");
     await usersPage.save();
 
-    // Сообщение об ошибке валидации
     await expect(page.getByText(/Incorrect email format/i)).toBeVisible();
   });
 });
@@ -109,14 +106,12 @@ test.describe("Удаление пользователей", () => {
     const usersPage = new UsersPage(page);
     await usersPage.goto("/#/users");
 
-    // Запомним email первого пользователя
     const firstRow = page.getByRole("row").nth(1);
     const emailCell = firstRow.getByRole("cell").nth(2);
     const emailText = await emailCell.textContent();
 
-    await usersPage.deleteUser(0);
+    await usersPage.deleteItem(0);
 
-    // Пользователя больше нет в списке
     await expect(page.getByText(emailText)).not.toBeVisible();
   });
 
@@ -124,7 +119,7 @@ test.describe("Удаление пользователей", () => {
     const usersPage = new UsersPage(page);
     await usersPage.goto("/#/users");
 
-    await usersPage.deleteAllUsers();
+    await usersPage.deleteAllItems('No Users yet.');
 
     // Список пуст
     await expect(page.getByText(/no users|empty/i)).toBeVisible();

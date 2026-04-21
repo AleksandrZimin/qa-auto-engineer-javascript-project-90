@@ -1,16 +1,32 @@
-# React + Vite
+# Проект: Тестирование Канбан-доски (JS)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[![Actions Status](https://github.com/AleksandrZimin/qa-auto-engineer-javascript-project-90/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/AleksandrZimin/qa-auto-engineer-javascript-project-90/actions)
 
-Currently, two official plugins are available:
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=AleksandrZimin_qa-auto-engineer-javascript-project-90&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=AleksandrZimin_qa-auto-engineer-javascript-project-90)
+![Coverage](https://sonarcloud.io/api/project_badges/measure?project=AleksandrZimin_qa-auto-engineer-javascript-project-90&metric=coverage)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Установка
 
-## React Compiler
+```bash
+npm ci            # установка зависимостей
+```
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Запуск тестов
 
-## Expanding the ESLint configuration
+```bash
+npm run test      # запуск тестов в терминале
+npm run test:ui   # запуск тестов в ui
+```
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Команды разработки
+
+```bash
+npm ci            # установка зависимостей
+npm run dev       # запуск приложения
+npm run build     # сборка приложения
+npm run lint      # проверка линтером
+npm run lint:fix  # исправления линтером
+```
+---

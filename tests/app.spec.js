@@ -7,7 +7,7 @@ test('Приложение успешно рендерится', async ({ page }
   
   await appPage.goto();
 
-  await expect(page).toHaveTitle(/Task Manager/i);
+  await expect(page).toHaveTitle('Vite + React');
 
   await expect(page.getByLabel(/username/i)).toBeVisible();
   await expect(page.getByLabel(/password/i)).toBeVisible();

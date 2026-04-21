@@ -7,10 +7,6 @@ export class LabelsPage extends AppPage {
     this.nameInput = page.getByLabel(/name/i);
   }
 
-  async openCreateForm() {
-    await this.createButton.click();
-  }
-
   async fillLabelForm({ name }) {
     await this.nameInput.fill(name);
   }

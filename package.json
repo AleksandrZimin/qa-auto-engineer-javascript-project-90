@@ -8,7 +8,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "start:app": "testing-task-manager",
-    "test": "npx playwright test"
+    "test": "npx playwright test",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@hexlet/testing-task-manager": "^0.1.5",
@@ -30,3 +32,4 @@
     "vite": "^8.0.1"
   }
 }
+

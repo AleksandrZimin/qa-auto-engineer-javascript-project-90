@@ -11,6 +11,8 @@ export class AppPage {
     this.deleteSelectedButton = page.getByRole('button', { name: /delete/i });
     this.checkboxes = page.getByRole('checkbox');
     this.checkboxAll = page.getByRole('checkbox', { name: /select all/i });
+    this.pageText = (text) => page.getByText(text);
+    this.getByRole = (role, name) => page.getByRole(role, { name: name });
   }
 
   async goto(route = "/") {
@@ -19,20 +21,20 @@ export class AppPage {
 
   async saveAndGoTo(route = "/") {
     await this.saveButton.click();
-    await expect(this.page.getByText('Element created')).toBeVisible();
+    await expect(this.pageText('Element created')).toBeVisible();
     await this.page.goto(route);
   }
 
   async deleteItem(rowIndex = 0) {
     await this.checkboxes.nth(rowIndex + 1).click();
     await this.deleteSelectedButton.click();
-    await expect(this.page.getByText('Element deleted')).toBeVisible();
+    await expect(this.pageText('Element deleted')).toBeVisible();
   }
 
   async deleteAllItems(text) {
     await this.checkboxAll.click();
     await this.deleteSelectedButton.click();
-    await expect(this.page.getByText(text)).toBeVisible();
+    await expect(this.pageText(text)).toBeVisible();
   }
 
   async save() {

@@ -7,27 +7,46 @@
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=AleksandrZimin_qa-auto-engineer-javascript-project-90&metric=coverage)](https://sonarcloud.io/summary/new_code?id=AleksandrZimin_qa-auto-engineer-javascript-project-90)
 
 ## Установка
-
+Установка зависимостей
 ```bash
-npm ci            # установка зависимостей
+npm ci
 ```
 ---
 
 ## Запуск тестов
-
+Запуск тестов в терминале
 ```bash
-npm run test      # запуск тестов в терминале
-npm run test:ui   # запуск тестов в ui
+npm run test
 ```
+Запуск тестов в ui
+```bash
+npm run test:ui
+```
+
 ---
 
 ## Команды разработки
-
+Установка зависимостей
 ```bash
-npm ci            # установка зависимостей
-npm run dev       # запуск приложения
-npm run build     # сборка приложения
-npm run lint      # проверка линтером
-npm run lint:fix  # исправления линтером
+npm ci
+```
+Запуск приложения
+```bash
+npm run dev
+```
+Сборка приложения
+```bash
+npm run build
+```
+Проверка линтером
+```bash
+npm run lint
+```
+Исправления линтером
+```bash
+npm run lint:fix
 ```
 ---
+
+## Ссылки
+[![Hexlet](https://img.shields.io/badge/-Hexlet%20Code%20Review-brightgreen?style=flat-square)](https://ru.hexlet.io/reviews/github.com/AleksandrZimin/qa-auto-engineer-javascript-project-90/pulls)

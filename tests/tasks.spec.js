@@ -18,8 +18,10 @@ test.describe("Создание задачи", () => {
   });
 
   test("новая задача сохраняется успешно", async () => {
+    const taskName = `Task ${Date.now()}`;
+
     await tasksPage.fillTaskForm({
-      title: "Test Task",
+      title: taskName,
       content: "test content",
       assignee: "sarah@example.com",
       status: "To Publish",
@@ -27,7 +29,7 @@ test.describe("Создание задачи", () => {
     });
     await tasksPage.saveAndGoTo("/#/tasks");
 
-    await expect(tasksPage.pageText("Test Task")).toBeVisible({
+    await expect(tasksPage.pageText(taskName)).toBeVisible({
       timeout: 10000,
     });
   });
@@ -55,9 +57,22 @@ test.describe("Список задач", () => {
 });
 
 test.describe("Редактирование задачи", () => {
+  let createdTaskName
+
   test.beforeEach(async ({ page }) => {
     tasksPage = new TasksPage(page);
+    createdTaskName = `Task ${Date.now()}`;
+
     await tasksPage.goto("/#/tasks");
+    await tasksPage.openCreateForm();
+    await tasksPage.fillTaskForm({
+      title: createdTaskName,
+      content: "edit test",
+      assignee: "sarah@example.com",
+      status: "Draft",
+      label: "task",
+    });
+    await tasksPage.saveAndGoTo("/#/tasks");
   });
 
   test("форма редактирования отображается корректно", async () => {
@@ -68,13 +83,14 @@ test.describe("Редактирование задачи", () => {
   });
 
   test("изменения задачи сохраняются", async () => {
-    await tasksPage.editTaskButton(0).click();
+    const updatedName = `Updated ${Date.now()}`;
 
+    await tasksPage.editTaskButton(0).click();
     await tasksPage.titleInput.clear();
-    await tasksPage.titleInput.fill("Updated Task Title");
+    await tasksPage.titleInput.fill(updatedName);
     await tasksPage.save();
 
-    await expect(tasksPage.pageText("Updated Task Title")).toBeVisible();
+    await expect(tasksPage.pageText(updatedName)).toBeVisible();
   });
 });
 
@@ -87,72 +103,134 @@ test.describe("Фильтрация задач", () => {
   test("фильтрация по статусу работает корректно", async () => {
     await tasksPage.filterByStatus("Draft");
 
-    await expect(tasksPage.draftCards.first()).toBeVisible();
     await expect(tasksPage.toReviewCards.first()).not.toBeVisible();
     await expect(tasksPage.toBeFixedCards.first()).not.toBeVisible();
     await expect(tasksPage.toPublishCards.first()).not.toBeVisible();
     await expect(tasksPage.publishedCards.first()).not.toBeVisible();
+    await expect(tasksPage.draftCards.first()).toBeVisible();
   });
 
   test("фильтрация по исполнителю работает корректно", async () => {
+    const taskForJane = `Jane Task ${Date.now()}`;
+    const taskForOther = `Other Task ${Date.now() + 1}`;
+
+    await tasksPage.openCreateForm();
+    await tasksPage.fillTaskForm({
+      title: taskForJane,
+      assignee: "jane@gmail.com",
+      status: "Draft",
+      label: "task",
+    });
+    await tasksPage.saveAndGoTo("/#/tasks");
+
+    await tasksPage.openCreateForm();
+    await tasksPage.fillTaskForm({
+      title: taskForOther,
+      assignee: "sarah@example.com",
+      status: "Draft",
+      label: "task",
+    });
+    await tasksPage.saveAndGoTo("/#/tasks");
+
     await tasksPage.filterByAssignee("jane@gmail.com");
 
-    await expect(tasksPage.pageText("Index: 3329")).not.toBeVisible();
-
-    await expect(tasksPage.pageText("Index: 3245")).toBeVisible();
-    await expect(tasksPage.pageText("Index: 3266")).toBeVisible();
+    await expect(tasksPage.pageText(taskForOther)).not.toBeVisible();
+    await expect(tasksPage.pageText(taskForJane)).toBeVisible();
   });
 
   test("фильтрация по метке работает корректно", async () => {
+    const bugTask = `Bug Task ${Date.now()}`;
+    const otherTask = `Other Task ${Date.now() + 1}`;
+
+    await tasksPage.openCreateForm();
+    await tasksPage.fillTaskForm({
+      title: bugTask,
+      assignee: "sarah@example.com",
+      status: "Draft",
+      label: "bug",
+    });
+    await tasksPage.saveAndGoTo("/#/tasks");
+
+    await tasksPage.openCreateForm();
+    await tasksPage.fillTaskForm({
+      title: otherTask,
+      assignee: "sarah@example.com",
+      status: "Draft",
+      label: "task",
+    });
+    await tasksPage.saveAndGoTo("/#/tasks");
+
     await tasksPage.filterByLabel("bug");
 
-    await expect(tasksPage.pageText("Index: 3329")).not.toBeVisible();
-
-    await expect(tasksPage.pageText("Index: 3182")).toBeVisible();
-    await expect(tasksPage.pageText("Index: 3266")).toBeVisible();
+    await expect(tasksPage.pageText(otherTask)).not.toBeVisible();
+    await expect(tasksPage.pageText(bugTask)).toBeVisible();
   });
 });
 
 test.describe("Перемещение задачи между колонками", () => {
+  let taskTitle;
+
   test.beforeEach(async ({ page }) => {
     tasksPage = new TasksPage(page);
+    taskTitle = `Drag Task ${Date.now()}`;
+
     await tasksPage.goto("/#/tasks");
+    await tasksPage.openCreateForm();
+    await tasksPage.fillTaskForm({
+      title: taskTitle,
+      content: "drag test",
+      assignee: "sarah@example.com",
+      status: "Draft",
+      label: "task",
+    });
+    await tasksPage.saveAndGoTo("/#/tasks");
   });
 
   test("задача перемещается в другой статус", async ({ page }) => {
-    const taskTitle = await tasksPage.taskCardTitle(1).textContent();
+    const taskCard = tasksPage.draftCards.filter({ hasText: taskTitle });
 
-    await dragAndDrop(page, tasksPage.taskCard(1), tasksPage.toReviewBox);
+    await dragAndDrop(page, taskCard, tasksPage.toReviewBox);
 
-    await expect(
-      tasksPage.toReviewBox.locator(".MuiTypography-h5", {
-        hasText: taskTitle,
-      }),
-    ).toBeVisible();
+    await page.waitForTimeout(500);
+
+    await expect(tasksPage.toReviewBox.getByText(taskTitle)).toBeVisible();
 
     await tasksPage.goto("/#/tasks");
-    await expect(
-      tasksPage.toReviewBox.locator(".MuiTypography-h5", {
-        hasText: taskTitle,
-      }),
-    ).toBeVisible();
+    await expect(tasksPage.toReviewBox.getByText(taskTitle)).toBeVisible();
   });
 });
 
 test.describe("Удаление задач", () => {
+  let taskTitle;
+
   test.beforeEach(async ({ page }) => {
     tasksPage = new TasksPage(page);
+    taskTitle = `Delete Task ${Date.now()}`;
+
     await tasksPage.goto("/#/tasks");
+    await tasksPage.openCreateForm();
+    await tasksPage.fillTaskForm({
+      title: taskTitle,
+      content: "delete test",
+      assignee: "sarah@example.com",
+      status: "Draft",
+      label: "task",
+    });
+    await tasksPage.saveAndGoTo("/#/tasks");
   });
 
   test("одна задача удаляется успешно", async () => {
-    const firstCard = tasksPage.taskCard(1);
-    const taskTitle = await firstCard.locator(".MuiTypography-h5").textContent();
+    // Убеждаемся что задача создана
+    await expect(tasksPage.pageText(taskTitle)).toBeVisible();
 
-    await tasksPage.deleteTask(1);
+    // Находим карточку и кликаем Edit через метод страницы
+    const taskCard = tasksPage.draftCards.filter({ hasText: taskTitle });
+    await taskCard.getByLabel("Edit").click();
+    await tasksPage.getByRole("button", /delete/i).click();
 
-    await expect(
-      firstCard.locator(".MuiTypography-h5", { hasText: taskTitle })).not.toBeVisible();
+    // Убеждаемся что задача удалена
+    await expect(tasksPage.pageText("Element deleted")).toBeVisible();
+    await tasksPage.goto("/#/tasks");
+    await expect(tasksPage.pageText(taskTitle)).not.toBeVisible();
   });
 });
-

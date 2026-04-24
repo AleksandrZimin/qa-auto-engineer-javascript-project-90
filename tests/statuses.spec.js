@@ -86,4 +86,3 @@ test.describe("Удаление статусов", () => {
     await statusesPage.deleteAllItems("No Task statuses yet.");
   });
 });
-

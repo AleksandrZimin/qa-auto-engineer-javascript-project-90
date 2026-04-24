@@ -97,4 +97,3 @@ test.describe("Удаление пользователей", () => {
     await usersPage.deleteAllItems("No Users yet.");
   });
 });
-

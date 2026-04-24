@@ -85,4 +85,3 @@ test.describe("Удаление меток", () => {
     await labelsPage.deleteAllItems("No Labels yet.");
   });
 });
-

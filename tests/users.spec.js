@@ -1,99 +1,126 @@
-import { test, expect } from "./utils/beforeEach.js";
-import { UsersPage } from "./pages/UsersPage.js";
+import { test, expect } from "./utils/beforeEach.js"
+import { UsersPage } from "./pages/UsersPage.js"
 
-let usersPage;
+let usersPage
 
 test.describe("Создание пользователя", () => {
   test.beforeEach(async ({ page }) => {
-    usersPage = new UsersPage(page);
-    await usersPage.goto("/#/users");
-    await usersPage.openCreateForm();
-  });
+    usersPage = new UsersPage(page)
+    await usersPage.goto("/#/users")
+    await usersPage.openCreateForm()
+  })
 
   test("форма создания пользователя отображается корректно", async () => {
-    await expect(usersPage.firstNameInput).toBeVisible();
-    await expect(usersPage.lastNameInput).toBeVisible();
-    await expect(usersPage.emailInput).toBeVisible();
-    await expect(usersPage.saveButton).toBeVisible();
-  });
+    await expect(usersPage.firstNameInput).toBeVisible()
+    await expect(usersPage.lastNameInput).toBeVisible()
+    await expect(usersPage.emailInput).toBeVisible()
+    await expect(usersPage.saveButton).toBeVisible()
+  })
 
   test("новый пользователь сохраняется успешно", async () => {
+    const email = `user.${Date.now()}@example.com`
+
     await usersPage.fillUserForm({
       firstName: "John",
       lastName: "Tester",
-      email: "john.tester@example.com",
-    });
-    await usersPage.saveAndGoTo("/#/users");
+      email,
+    })
+    await usersPage.saveAndGoTo("/#/users")
 
-    await expect(usersPage.pageText("john.tester@example.com")).toBeVisible();
-  });
-});
+    await expect(usersPage.pageText(email)).toBeVisible()
+  })
+})
 
 test.describe("Список пользователей", () => {
   test.beforeEach(async ({ page }) => {
-    usersPage = new UsersPage(page);
-    await usersPage.goto("/#/users");
-  });
+    usersPage = new UsersPage(page)
+    await usersPage.goto("/#/users")
+  })
 
   test("список пользователей отображается корректно", async () => {
-    await usersPage.userListVisible(true);
-  });
+    await usersPage.userListVisible(true)
+  })
 
   test("отображается основная информация о пользователях", async () => {
-    await expect(usersPage.getByRole("columnheader", /email/i)).toBeVisible();
-    await expect(usersPage.getByRole("columnheader", /first name/i)).toBeVisible();
-    await expect(usersPage.getByRole("columnheader", /last name/i)).toBeVisible();
-  });
-});
+    await expect(usersPage.getByRole("columnheader", /email/i)).toBeVisible()
+    await expect(usersPage.getByRole("columnheader", /first name/i)).toBeVisible()
+    await expect(usersPage.getByRole("columnheader", /last name/i)).toBeVisible()
+  })
+})
 
 test.describe("Редактирование пользователя", () => {
-  test.beforeEach(async ({ page }) => {
-    usersPage = new UsersPage(page);
+  let userEmail
 
-    await usersPage.goto("/#/users");
-    await page.getByRole("row").nth(1).click();
-  });
+  test.beforeEach(async ({ page }) => {
+    usersPage = new UsersPage(page)
+    userEmail = `edit.${Date.now()}@example.com`
+
+    await usersPage.goto("/#/users")
+    await usersPage.openCreateForm()
+    await usersPage.fillUserForm({
+      firstName: "Edit",
+      lastName: "User",
+      email: userEmail,
+    })
+    await usersPage.saveAndGoTo("/#/users")
+
+    await usersPage.pageText(userEmail).click()
+  })
 
   test("форма редактирования отображается корректно", async () => {
-    await expect(usersPage.emailInput).toBeVisible();
-    await expect(usersPage.firstNameInput).toBeVisible();
-    await expect(usersPage.lastNameInput).toBeVisible();
-  });
+    await expect(usersPage.emailInput).toBeVisible()
+    await expect(usersPage.firstNameInput).toBeVisible()
+    await expect(usersPage.lastNameInput).toBeVisible()
+  })
 
   test("изменения пользователя сохраняются", async () => {
-    await usersPage.firstNameInput.clear();
-    await usersPage.firstNameInput.fill("UpdatedName");
-    await usersPage.save();
+    const updatedName = `Updated${Date.now()}`
 
-    await expect(usersPage.pageText("UpdatedName")).toBeVisible();
-  });
+    await usersPage.firstNameInput.clear()
+    await usersPage.firstNameInput.fill(updatedName)
+    await usersPage.save()
+
+    await expect(usersPage.pageText(updatedName)).toBeVisible()
+  })
 
   test("валидация email при редактировании", async () => {
-    await usersPage.emailInput.clear();
-    await usersPage.emailInput.fill("not-valid-email");
-    await usersPage.save();
+    await usersPage.emailInput.clear()
+    await usersPage.emailInput.fill("not-valid-email")
+    await usersPage.save()
 
-    await expect(usersPage.pageText(/Incorrect email format/i)).toBeVisible();
-  });
-});
+    await expect(usersPage.pageText(/Incorrect email format/i)).toBeVisible()
+  })
+})
 
 test.describe("Удаление пользователей", () => {
+  let userEmail
+
   test.beforeEach(async ({ page }) => {
-    usersPage = new UsersPage(page);
-    await usersPage.goto("/#/users");
-  });
+    usersPage = new UsersPage(page)
+    userEmail = `delete.${Date.now()}@example.com`
+
+    await usersPage.goto("/#/users")
+    await usersPage.openCreateForm()
+    await usersPage.fillUserForm({
+      firstName: "Delete",
+      lastName: "User",
+      email: userEmail,
+    })
+    await usersPage.saveAndGoTo("/#/users")
+  })
 
   test("один пользователь удаляется успешно", async ({ page }) => {
-    const firstRow = page.getByRole("row").nth(1);
-    const emailCell = firstRow.getByRole("cell").nth(2);
-    const emailText = await emailCell.textContent();
+    await expect(usersPage.pageText(userEmail)).toBeVisible()
 
-    await usersPage.deleteItem(0);
+    const userRow = page.getByRole("row").filter({ hasText: userEmail })
+    await userRow.getByRole("checkbox").click()
+    await usersPage.deleteSelectedButton.click()
 
-    await expect(usersPage.pageText(emailText)).not.toBeVisible();
-  });
+    await expect(usersPage.pageText("Element deleted")).toBeVisible()
+    await expect(usersPage.pageText(userEmail)).not.toBeVisible()
+  })
 
   test("массовое удаление всех пользователей", async () => {
-    await usersPage.deleteAllItems("No Users yet.");
-  });
-});
+    await usersPage.deleteAllItems("No Users yet.")
+  })
+})

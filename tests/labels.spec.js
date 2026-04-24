@@ -1,87 +1,107 @@
-import { test, expect } from "./utils/beforeEach.js";
-import { LabelsPage } from "./pages/LabelsPage.js";
+import { test, expect } from "./utils/beforeEach.js"
+import { LabelsPage } from "./pages/LabelsPage.js"
 
-let labelsPage;
+let labelsPage
 
 test.describe("Создание метки", () => {
   test.beforeEach(async ({ page }) => {
-    labelsPage = new LabelsPage(page);
-
-    await labelsPage.goto("/#/labels");
-    await labelsPage.openCreateForm();
-  });
+    labelsPage = new LabelsPage(page)
+    await labelsPage.goto("/#/labels")
+    await labelsPage.openCreateForm()
+  })
 
   test("форма создания метки отображается корректно", async () => {
-    await expect(labelsPage.nameInput).toBeVisible();
-    await expect(labelsPage.saveButton).toBeVisible();
-  });
+    await expect(labelsPage.nameInput).toBeVisible()
+    await expect(labelsPage.saveButton).toBeVisible()
+  })
 
   test("новая метка сохраняется успешно", async ({ page }) => {
-    await labelsPage.fillLabelForm({ name: "test" });
-    await labelsPage.saveAndGoTo("/#/labels");
+    const labelName = `Label ${Date.now()}`
+
+    await labelsPage.fillLabelForm({ name: labelName })
+    await labelsPage.saveAndGoTo("/#/labels")
 
     await expect(
-      page.getByRole("cell", { name: "test", exact: true }),
-    ).toBeVisible();
-  });
-});
+      page.getByRole("cell", { name: labelName, exact: true })
+    ).toBeVisible()
+  })
+})
 
 test.describe("Список меток", () => {
   test.beforeEach(async ({ page }) => {
-    labelsPage = new LabelsPage(page);
-    await labelsPage.goto("/#/labels");
-  });
+    labelsPage = new LabelsPage(page)
+    await labelsPage.goto("/#/labels")
+  })
 
   test("список меток отображается корректно", async () => {
-    await expect(labelsPage.itemsList).toBeVisible();
-  });
+    await expect(labelsPage.itemsList).toBeVisible()
+  })
 
   test("отображается основная информация о метках", async () => {
     await expect(
-      labelsPage.getByRole("columnheader", /name/i)).toBeVisible();
-  });
-});
+      labelsPage.getByRole("columnheader", /name/i)
+    ).toBeVisible()
+  })
+})
 
 test.describe("Редактирование метки", () => {
-  test.beforeEach(async ({ page }) => {
-    labelsPage = new LabelsPage(page);
+  let labelName
 
-    await labelsPage.goto("/#/labels");
-    await page.getByRole("row").nth(1).click();
-  });
+  test.beforeEach(async ({ page }) => {
+    labelsPage = new LabelsPage(page)
+    labelName = `Label ${Date.now()}`
+
+    await labelsPage.goto("/#/labels")
+    await labelsPage.openCreateForm()
+    await labelsPage.fillLabelForm({ name: labelName })
+    await labelsPage.saveAndGoTo("/#/labels")
+
+    await labelsPage.pageText(labelName).click()
+  })
 
   test("форма редактирования отображается корректно", async () => {
-    await expect(labelsPage.nameInput).toBeVisible();
-    await expect(labelsPage.saveButton).toBeVisible();
-  });
+    await expect(labelsPage.nameInput).toBeVisible()
+    await expect(labelsPage.saveButton).toBeVisible()
+  })
 
   test("изменения метки сохраняются", async () => {
-    await labelsPage.nameInput.clear();
-    await labelsPage.nameInput.fill("test");
-    await labelsPage.save();
+    const updatedName = `Updated ${Date.now()}`
+
+    await labelsPage.nameInput.clear()
+    await labelsPage.nameInput.fill(updatedName)
+    await labelsPage.save()
 
     await expect(
-     labelsPage.getByRole("cell", "test"),
-    ).toBeVisible();
-  });
-});
+      labelsPage.getByRole("cell", updatedName)
+    ).toBeVisible()
+  })
+})
 
 test.describe("Удаление меток", () => {
+  let labelName
+
   test.beforeEach(async ({ page }) => {
-    labelsPage = new LabelsPage(page);
-    await labelsPage.goto("/#/labels");
-  });
+    labelsPage = new LabelsPage(page)
+    labelName = `Label ${Date.now()}`
+
+    await labelsPage.goto("/#/labels")
+    await labelsPage.openCreateForm()
+    await labelsPage.fillLabelForm({ name: labelName })
+    await labelsPage.saveAndGoTo("/#/labels")
+  })
 
   test("одна метка удаляется успешно", async ({ page }) => {
-    const firstRow = page.getByRole("row").nth(1);
-    const nameText = await firstRow.getByRole("cell").nth(2).textContent();
+    await expect(labelsPage.pageText(labelName)).toBeVisible()
 
-    await labelsPage.deleteItem(0);
+    const labelRow = page.getByRole("row").filter({ hasText: labelName })
+    await labelRow.getByRole("checkbox").click()
+    await labelsPage.deleteSelectedButton.click()
 
-    await expect(labelsPage.getByRole("cell", nameText)).not.toBeVisible();
-  });
+    await expect(labelsPage.pageText("Element deleted")).toBeVisible()
+    await expect(labelsPage.pageText(labelName)).not.toBeVisible()
+  })
 
   test("массовое удаление всех меток", async () => {
-    await labelsPage.deleteAllItems("No Labels yet.");
-  });
-});
+    await labelsPage.deleteAllItems("No Labels yet.")
+  })
+})

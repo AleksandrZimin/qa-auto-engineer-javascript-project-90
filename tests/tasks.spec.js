@@ -76,7 +76,8 @@ test.describe("Редактирование задачи", () => {
   });
 
   test("форма редактирования отображается корректно", async () => {
-    await tasksPage.editTaskButton(0).click();
+    const taskCard = tasksPage.draftCards.filter({ hasText: createdTaskName })
+    await taskCard.getByLabel("Edit").click()
 
     await expect(tasksPage.titleInput).toBeVisible();
     await expect(tasksPage.saveButton).toBeVisible();
@@ -85,7 +86,8 @@ test.describe("Редактирование задачи", () => {
   test("изменения задачи сохраняются", async () => {
     const updatedName = `Updated ${Date.now()}`;
 
-    await tasksPage.editTaskButton(0).click();
+    const taskCard = tasksPage.draftCards.filter({ hasText: createdTaskName })
+    await taskCard.getByLabel("Edit").click()
     await tasksPage.titleInput.clear();
     await tasksPage.titleInput.fill(updatedName);
     await tasksPage.save();
@@ -220,15 +222,12 @@ test.describe("Удаление задач", () => {
   });
 
   test("одна задача удаляется успешно", async () => {
-    // Убеждаемся что задача создана
     await expect(tasksPage.pageText(taskTitle)).toBeVisible();
 
-    // Находим карточку и кликаем Edit через метод страницы
     const taskCard = tasksPage.draftCards.filter({ hasText: taskTitle });
     await taskCard.getByLabel("Edit").click();
     await tasksPage.getByRole("button", /delete/i).click();
 
-    // Убеждаемся что задача удалена
     await expect(tasksPage.pageText("Element deleted")).toBeVisible();
     await tasksPage.goto("/#/tasks");
     await expect(tasksPage.pageText(taskTitle)).not.toBeVisible();

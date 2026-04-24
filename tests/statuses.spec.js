@@ -1,88 +1,113 @@
-import { test, expect } from "./utils/beforeEach.js";
-import { StatusesPage } from "./pages/StatusesPage.js";
+import { test, expect } from "./utils/beforeEach.js"
+import { StatusesPage } from "./pages/StatusesPage.js"
 
-let statusesPage;
+let statusesPage
 
 test.describe("Создание статуса", () => {
   test.beforeEach(async ({ page }) => {
-    statusesPage = new StatusesPage(page);
-
-    await statusesPage.goto("/#/task_statuses");
-    await statusesPage.openCreateForm();
-  });
+    statusesPage = new StatusesPage(page)
+    await statusesPage.goto("/#/task_statuses")
+    await statusesPage.openCreateForm()
+  })
 
   test("форма создания статуса отображается корректно", async () => {
-    await expect(statusesPage.nameInput).toBeVisible();
-    await expect(statusesPage.slugInput).toBeVisible();
-    await expect(statusesPage.saveButton).toBeVisible();
-  });
+    await expect(statusesPage.nameInput).toBeVisible()
+    await expect(statusesPage.slugInput).toBeVisible()
+    await expect(statusesPage.saveButton).toBeVisible()
+  })
 
   test("новый статус сохраняется успешно", async () => {
-    await statusesPage.fillStatusForm({
-      name: "In Review",
-      slug: "in-review",
-    });
-    await statusesPage.saveAndGoTo("/#/task_statuses");
+    const statusName = `Status ${Date.now()}`
+    const statusSlug = `status-${Date.now()}`
 
-    await expect(statusesPage.pageText("In Review")).toBeVisible();
-  });
-});
+    await statusesPage.fillStatusForm({
+      name: statusName,
+      slug: statusSlug,
+    })
+    await statusesPage.saveAndGoTo("/#/task_statuses")
+
+    await expect(statusesPage.pageText(statusName)).toBeVisible()
+  })
+})
 
 test.describe("Список статусов", () => {
   test.beforeEach(async ({ page }) => {
-    statusesPage = new StatusesPage(page);
-    await statusesPage.goto("/#/task_statuses");
-  });
+    statusesPage = new StatusesPage(page)
+    await statusesPage.goto("/#/task_statuses")
+  })
 
   test("список статусов отображается корректно", async () => {
-    await expect(statusesPage.itemsList).toBeVisible();
-  });
+    await expect(statusesPage.itemsList).toBeVisible()
+  })
 
   test("отображается основная информация о статусах", async () => {
-    await expect(statusesPage.getByRole("columnheader", /name/i)).toBeVisible();
-    await expect(statusesPage.getByRole("columnheader", /slug/i)).toBeVisible();
-  });
-});
+    await expect(statusesPage.getByRole("columnheader", /name/i)).toBeVisible()
+    await expect(statusesPage.getByRole("columnheader", /slug/i)).toBeVisible()
+  })
+})
 
 test.describe("Редактирование статуса", () => {
-  test.beforeEach(async ({ page }) => {
-    statusesPage = new StatusesPage(page);
+  let statusName
 
-    await statusesPage.goto("/#/task_statuses");
-    await page.getByRole("row").nth(1).click();
-  });
+  test.beforeEach(async ({ page }) => {
+    statusesPage = new StatusesPage(page)
+    statusName = `Status ${Date.now()}`
+
+    await statusesPage.goto("/#/task_statuses")
+    await statusesPage.openCreateForm()
+    await statusesPage.fillStatusForm({
+      name: statusName,
+      slug: `status-${Date.now()}`,
+    })
+    await statusesPage.saveAndGoTo("/#/task_statuses")
+
+    await statusesPage.pageText(statusName).click()
+  })
 
   test("форма редактирования отображается корректно", async () => {
-    await expect(statusesPage.nameInput).toBeVisible();
-    await expect(statusesPage.slugInput).toBeVisible();
-  });
+    await expect(statusesPage.nameInput).toBeVisible()
+    await expect(statusesPage.slugInput).toBeVisible()
+  })
 
   test("изменения статуса сохраняются", async () => {
-    await statusesPage.nameInput.clear();
-    await statusesPage.nameInput.fill("Updated Status");
-    await statusesPage.save();
+    const updatedName = `Updated ${Date.now()}`
 
-    await expect(statusesPage.pageText("Updated Status")).toBeVisible();
-  });
-});
+    await statusesPage.nameInput.clear()
+    await statusesPage.nameInput.fill(updatedName)
+    await statusesPage.save()
+
+    await expect(statusesPage.pageText(updatedName)).toBeVisible()
+  })
+})
 
 test.describe("Удаление статусов", () => {
+  let statusName
+
   test.beforeEach(async ({ page }) => {
-    statusesPage = new StatusesPage(page);
-    await statusesPage.goto("/#/task_statuses");
-  });
+    statusesPage = new StatusesPage(page)
+    statusName = `Status ${Date.now()}`
+
+    await statusesPage.goto("/#/task_statuses")
+    await statusesPage.openCreateForm()
+    await statusesPage.fillStatusForm({
+      name: statusName,
+      slug: `status-${Date.now()}`,
+    })
+    await statusesPage.saveAndGoTo("/#/task_statuses")
+  })
 
   test("один статус удаляется успешно", async ({ page }) => {
-    const firstRow = page.getByRole("row").nth(1);
-    const nameCell = firstRow.getByRole("cell").nth(2);
-    const nameText = await nameCell.textContent();
+    await expect(statusesPage.pageText(statusName)).toBeVisible()
 
-    await statusesPage.deleteItem(0);
+    const statusRow = page.getByRole("row").filter({ hasText: statusName })
+    await statusRow.getByRole("checkbox").click()
+    await statusesPage.deleteSelectedButton.click()
 
-    await expect(statusesPage.getByRole("cell", nameText)).not.toBeVisible();
-  });
+    await expect(statusesPage.pageText("Element deleted")).toBeVisible()
+    await expect(statusesPage.pageText(statusName)).not.toBeVisible()
+  })
 
   test("массовое удаление всех статусов", async () => {
-    await statusesPage.deleteAllItems("No Task statuses yet.");
-  });
-});
+    await statusesPage.deleteAllItems("No Task statuses yet.")
+  })
+})

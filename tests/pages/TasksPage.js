@@ -5,11 +5,8 @@ export class TasksPage extends AppPage {
   constructor(page) {
     super(page);
 
-    this.taskCard = (index = 0) => page.locator(".MuiCard-root").nth(index);
-    this.taskCardTitle = (index = 0) => this.taskCard(index).locator(".MuiTypography-h5");
-    this.editTaskButton = (index = 0) =>
-      this.taskCard(index).getByLabel("Edit");
-    
+    this.taskCard = (index = 0) => page.locator('[data-rfd-draggable-id]').nth(index)
+    this.editTaskButton = (index = 0) => this.taskCard(index).getByLabel("Edit");
 
     this.titleInput = page.getByLabel(/title/i);
     this.assigneeInput = page.getByLabel(/assignee/i);
@@ -23,11 +20,11 @@ export class TasksPage extends AppPage {
     this.toPublishBox = page.locator('[data-rfd-droppable-id="4"]');
     this.publishedBox = page.locator('[data-rfd-droppable-id="5"]');
 
-    this.draftCards = this.draftBox.locator(".MuiCard-root");
-    this.toReviewCards = this.toReviewBox.locator(".MuiCard-root");
-    this.toBeFixedCards = this.toBeFixedBox.locator(".MuiCard-root");
-    this.toPublishCards = this.toPublishBox.locator(".MuiCard-root");
-    this.publishedCards = this.publishedBox.locator(".MuiCard-root");
+    this.draftCards = this.draftBox.locator('[data-rfd-draggable-id]')
+    this.toReviewCards = this.toReviewBox.locator('[data-rfd-draggable-id]')
+    this.toBeFixedCards = this.toBeFixedBox.locator('[data-rfd-draggable-id]')
+    this.toPublishCards = this.toPublishBox.locator('[data-rfd-draggable-id]')
+    this.publishedCards = this.publishedBox.locator('[data-rfd-draggable-id]')
   }
 
   async fillTaskForm({ assignee, title, content, status, label }) {
@@ -81,8 +78,7 @@ export class TasksPage extends AppPage {
   }
 
   async deleteTask(n) {
-    const card = this.page.locator(".MuiCard-root").nth(n - 1);
-    await card.getByLabel("Edit").click();
+    await this.taskCard(n -1).getByLabel("Edit").click();
     await this.getByRole("button", /delete/i).click();
     await expect(this.pageText("Element deleted")).toBeVisible();
   }

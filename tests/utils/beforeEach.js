@@ -1,4 +1,4 @@
-import { test as base, expect } from '@bgotink/playwright-coverage'
+import { test as base } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage.js';
 
 export const test = base.extend({

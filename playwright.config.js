@@ -1,6 +1,5 @@
 // @ts-check
 import { defineConfig, devices } from '@playwright/test'
-import { defineCoverageReporterConfig } from '@bgotink/playwright-coverage'
 import { fileURLToPath } from 'url'
 import path from 'path'
 import dotenv from 'dotenv'
@@ -15,37 +14,18 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-
-  reporter: [
-    ['html'],
-    [
-      '@bgotink/playwright-coverage',
-      defineCoverageReporterConfig({
-        sourceRoot: __dirname,
-        exclude: ['node_modules/**'],
-        resultDir: path.join(__dirname, 'coverage'),
-        reports: [
-          ['lcovonly', { file: 'lcov.info' }],
-          // @ts-ignore
-          ['text-summary', { file: null }],
-        ],
-      }),
-    ],
-  ],
-
+  reporter: 'html',
   use: {
     baseURL: 'http://localhost:5173',
     screenshot: 'only-on-failure',
     trace: 'on-first-retry',
   },
-
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-
   webServer: {
     command: 'npm run dev',
     url: 'http://localhost:5173',

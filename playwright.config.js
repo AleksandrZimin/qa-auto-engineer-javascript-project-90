@@ -1,9 +1,11 @@
 // @ts-check
 import { defineConfig, devices } from '@playwright/test';
-import { fileURLToPath } from 'url';
-import path from 'path';
-import dotenv from 'dotenv';
-import process from 'node:process';
+// @ts-ignore
+import { createCoverageConfig } from '@bgotink/playwright-coverage'
+import { fileURLToPath } from 'url'
+import path from 'path'
+import dotenv from 'dotenv'
+import process from 'node:process'
 
 /**
  * Read environment variables from file.
@@ -16,6 +18,15 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
+  ...createCoverageConfig({
+    // исходники которые нужно покрыть
+    include: ['src/**'],
+    exclude: ['node_modules/**'],
+    // куда писать lcov
+    reportsDirectory: './coverage',
+    reporters: ['lcov', 'text'],
+  }),
+
   testDir: './tests',
   /* Run tests in files in parallel */
   fullyParallel: true,

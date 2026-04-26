@@ -1,4 +1,4 @@
-import { test as base } from '@playwright/test';
+import { test as base } from '@bgotink/playwright-coverage'
 import { LoginPage } from '../pages/LoginPage.js';
 
 export const test = base.extend({
